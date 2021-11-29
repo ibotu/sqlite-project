@@ -35,3 +35,4 @@ Temporary Items
 
 node_modules/
 openregister.db
+.gitignore
