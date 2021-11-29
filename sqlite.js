@@ -1,8 +1,5 @@
-// first import module
-//import sqlite3
-
-// require it in file
 const sqlite3 = require('sqlite3').verbose();
+const axios = require('axios')
 
 let db = new sqlite3.Database('openregister.db', sqlite3.OPEN_READONLY, (err) => {
     if (err) {
@@ -11,21 +8,35 @@ let db = new sqlite3.Database('openregister.db', sqlite3.OPEN_READONLY, (err) =>
     console.log('Connected to the database.');
   });
   
-  db.serialize(() => {
-    db.each(`SELECT id as id,
-                    name as name
-             FROM company LIMIT 10`, (err, row) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log(row.id + "\t" + row.name);
-    });
-  });
-  
-  db.close((err) => {
+let sql = `SELECT id as id, name as name from company limit 10`;
+
+let headers = {
+
+}
+
+db.each( sql,(err, row) => {
     if (err) {
-      console.error(err.message);
+        throw err
     }
-    console.log('Close the database connection.');
-  });
+    let data = []
+    data = {
+        'id': row.id,
+        'name': row.name
+    }
+    console.log(data)
+
+    //axios.put('http://localhost:9200/test')
+    let url = 'http://localhost:9200/test/_doc/'+row.id
+    console.log(url);
+    axios.put(url , data, {headers: {'content-type': 'application/json'}} )
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });    
+});
+
+
   
+db.close()
